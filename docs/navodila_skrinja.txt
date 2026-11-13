@@ -1,0 +1,41 @@
+NAVODILA ZA UPORABO INFORMACIJSKEGA SISTEMA SKRINJA  ODDANA JAVNA NAROČILA V SLOVENIJI
+Ljubljana, november 2025
+Uvod
+Informacijski sistem Skrinja-Oddana javna naročila v Sloveniji je enotna vstopna spletna stran, dosegljiva na spletnem naslovu https://ejn.gov.si/ejnskrinja. Izdelana je kot poročilo, namenjeno javnosti. Poročilo v t. i. objektih (tabelah, grafih) prikazuje podatke o oddanih javnih naročilih v Sloveniji. Podatki se zajemajo iz obvestil o oddaji javnih naročil, ki so javno objavljena na Portalu javnih naročil (https://www.enarocanje.si) od 1.1.2017 dalje. Podatki se dnevno osvežujejo z objavami obvestil o oddaji javnih naročil prejšnjega dne. Vsako obvestilo o oddaji naročila je svoj postopek, ki je lahko razdeljen na več sklopov/naročil. Če je bilo naročilo oddano več izvajalcem (v primeru skupne ponudbe, podizvajanja ali uporabe zmogljivosti drugih subjektov), je vrednost naročila enakomerno porazdeljena med izvajalce. 
+Filtriranje podatkov
+Ob odprtju spletne strani oz. poročila se prednastavljeno prikažejo podatki o oddanih javnih naročilih v Sloveniji od 1.1. tekočega leta do vključno dneva pred vpogledom v podatke. Če želimo datumski okvir spremeniti, potem to storimo z vnosom drugega datumskega obdobja s klikom na ikono v desnem zgornjem kotu.
+Na poročilu je privzeto aktiviran filter »Aktualno leto«. S klikom na potrditveno polje privzeti filter izklopimo in vidimo vso zgodovino podatkov, ki je na voljo.
+Ko to naredimo, imamo možnost vnesti željene datume oddaje javnega naročila od-do, in sicer s pomočjo koledarja, ki se nam prikaže ob levem kliku z miško na datumsko polje, ali z ročnim vnosom (desni klik z miško na datumsko polje).
+Poleg izbire datumov je možno filtrirati tudi po drugih podatkih.
+S klikom na puščico desno od naziva vsakega filtra se odpre spustni seznam, kjer vpišemo ali izberemo poljubne vrednosti.
+Posamezne filtre odstranimo s klikom na radirko »Počisti izbore«. 
+Vse filtre naenkrat ponastavimo tako, da izberemo opcijo »Ponastavi filtre« na strani s filtri v desnem zgornjem kotu, okno s filtri pa zapremo s klikom na križec (X). 
+Interakcije podatkov
+Poleg izbire filtrov na strani s filtri lahko filtriramo tudi direktno na poročilu, saj so objekti na poročilu interaktivni in se odzivajo na klike z miško. 
+Primer: Če na objektu/grafu ‘Predmet naročila' kliknemo vrednost »Blago« (ali naziv ali barvni del), se celotno poročilo prefiltrira in preračuna le na izbrani predmet naročila. 
+V objektu, s katerim smo filtrirali poročilo, ostalim vrednostim (»Storitve«, »Gradnje«) pobledijo barve, izbrana vrednost pa dobi bolj vpadljivo barvo.
+Če želimo odznačiti izbrano vrednost »Blago«, ponovno kliknemo na »Blago«, ali pa kliknemo v nevtralen del poročila, kot je npr. bel prostor na objektu.
+Lahko pa hkrati filtriramo več stvari. Sočasno izbiro večih filtrov dosežemo z držanjem tipke CTRL (Control) + klik z miško.
+Primer: Če želimo, da se celotno poročilo filtrira tako na »Blago« kot tudi na »Storitve«, potem najprej kliknemo prvega, nato pa držimo tipko CTRL na tipkovnici in kliknemo še drugega. 
+Izbira večih vrednosti ni omejena na posamezen objekt, ampak lahko s tipko CTRL izbiramo tudi vrednosti drugih objektov (npr. področje, predmet, naročnik). Rezultat na poročilu je presek vseh filtrov, ki smo jih nanesli s klikanjem vrednosti na objektih. 
+Pregled izbranih filtrov
+Trenutno izbiro filtrov vidimo tako, da se z miško postavimo na objekt. Desno zgoraj se pojavi lij. Če se z miško postavimo nanj, se prikaže seznam vseh filtrov, ki vplivajo na prikaz podatkov, vključno s filtri, ki jih prinesejo interakcije iz drugih objektov.
+Tudi desno spodaj na poročilu je razvidno, kateri filtri so izbrani oz. trenutno aktivni pri prikazu podatkov. 
+Zaslonski namigi
+Dodatne informacije pridobimo, če se z miško postavimo na neko vrednost v objektu (npr. na »Blago« v grafu Predmet naročila). V oblačku se prikažejo zaslonski namigi oz. dodatne informacije, ki so vključene v objekt. 
+Izvoz podatkov
+Na vsakem objektu je možnost izvoza podatkov v formatih .xlsx ali .csv. Ko imamo miško postavljeno na objektu, se v desnem zgornjem kotu pojavi … (Več možnosti). Kliknemo … in izberemo prvo možnost Izvozi podatke. Potrdimo izbrani način izvoza in ob kliku na gumb Izvozi se prenese datoteka, ki jo je mogoče odpreti s programom Excel.
+Maksimalno število vrstic, ki se prenese naenkrat v formatu .xlsx je 150.000, v .csv formatu pa 30.000.
+Ostale funkcionalnosti
+Pogled kot tabela
+Če na objektu s klikom na … (Več možnosti) desno zgoraj izberemo drugo možnost s spustnega seznama »Pokaži kot tabelo«, se objekt razpre čez zgornjo polovico zaslona, v spodnji polovici zaslona pa se prikaže tabela, v kateri so vsi podatki, ki nastopajo v objektu. 
+Nazaj v poročilo se vrnemo z gumbom levo zgoraj »Nazaj v poročilo«..
+Pogled kot tabela je podoben izvozu v Excel.
+Fokusni način
+Pri prikazu poročila poskušamo dodati v poročilo čim več informacij, zato lahko pride do tega, da katerega izmed objektov (sploh na manjših zaslonih) ne moremo dobro razbrati. Obstaja fokusni način, ki poveča objekt čez cel zaslon. 
+Če se z miško postavimo na objekt, se v desnem zgornjem kotu objekta prikaže znak z imenom »Način fokusa«. Klik nanj razpre objekt čez cel zaslon.
+Nazaj v poročilo se vrnemo z gumbom levo zgoraj »Nazaj v poročilo«..
+Razvrščanje podatkov
+Če na objektu s klikom na … (Več možnosti) desno zgoraj izberemo zadnjo možnost s spustnega seznama »Razvrsti«, imamo možnost razvrščanja po vseh podatkih, ki so vključeni v objekt. Razvrščanje je možno tudi na filtriranih podatkih. 
+Povezava do obvestila o oddaji na Portalu javnih naročil
+V pogledu seznama javnih naročil se s klikom na sponkov stolpcu Povezava do objave v novem zavihku brskalnika odpre obvestilo o oddaji javnega naročila na Portalu javnih naročil. 
