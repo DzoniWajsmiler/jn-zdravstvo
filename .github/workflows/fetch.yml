@@ -1,3 +1,4 @@
+# Ročni zagon: Actions > Prenos obvestil z enarocanje.si > Run workflow
 name: Prenos obvestil z enarocanje.si
 on:
   workflow_dispatch:
