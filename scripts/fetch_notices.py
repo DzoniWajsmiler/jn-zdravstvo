@@ -22,11 +22,15 @@ ap.add_argument("--out", default="cache")
 ap.add_argument("--limit", type=int, default=0, help="samo prvih N obvestil (poskus)")
 ap.add_argument("--delay", type=float, default=3.0, help="povprecna pavza med stranmi (s)")
 ap.add_argument("--headed", action="store_true", help="pokazi okno brskalnika")
+ap.add_argument("--shard", default="", help="k/n: obdelaj k-ti del od n (za vzporeden zagon)")
 a = ap.parse_args()
 
 out = Path(a.out); out.mkdir(exist_ok=True)
 df = pd.read_excel(a.xlsx).dropna(subset=["Povezava do objave"])
 urls = list(dict.fromkeys(df["Povezava do objave"]))
+if a.shard:
+    k, n = map(int, a.shard.split("/"))
+    urls = urls[k::n]
 if a.limit: urls = urls[:a.limit]
 failed = out / "failed.txt"
 
