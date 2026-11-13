@@ -1,0 +1,65 @@
+<!doctype html><html lang="sl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Javna naročila v zdravstvu: iskalnik</title>
+<style>
+body{font:14px system-ui,sans-serif;margin:0;background:#f6f6f4;color:#222}
+header{background:#fff;padding:14px 20px;border-bottom:1px solid #ddd}
+h1{font-size:18px;margin:0 0 4px}.sub{color:#666;font-size:12px}
+.bar{display:flex;flex-wrap:wrap;gap:10px;padding:12px 20px;align-items:end;background:#fff;border-bottom:1px solid #ddd}
+label{display:flex;flex-direction:column;font-size:11px;color:#555;gap:2px}
+input,select{padding:6px;border:1px solid #bbb;border-radius:4px;font-size:13px}
+button{padding:7px 12px;border:1px solid #888;background:#fff;border-radius:4px;cursor:pointer}
+button.on{background:#222;color:#fff}
+.sum{padding:10px 20px;font-size:13px}.wrap{padding:0 20px 30px;overflow-x:auto}
+table{border-collapse:collapse;width:100%;background:#fff}th,td{padding:6px 8px;border-bottom:1px solid #eee;text-align:left;vertical-align:top}
+th{position:sticky;top:0;background:#eee;cursor:pointer;font-size:12px}td.n{text-align:right;white-space:nowrap}
+.r1{background:#fff3e0}.tag{display:inline-block;background:#fde0dc;color:#a00;padding:0 5px;border-radius:3px;font-size:11px}
+.note{padding:0 20px 8px;font-size:12px;color:#777;max-width:1000px}
+</style></head><body>
+<header><h1>Javna naročila v zdravstvu: iskalnik po sklopih</h1>
+<div class="sub">Vir: Portal javnih naročil (enarocanje.si), obvestila o oddaji, CPV 33, pogodbe od sept. 2022 do 2025 (novi format obvestil). Starejša obvestila nimajo podatkov o ponudbah.</div></header>
+<div class="bar">
+<label>Iskanje (predmet, naročnik, dobavitelj)<input id="q" size="30" placeholder="npr. zaklopk, stent, endoprotez"></label>
+<label>Naročnik<select id="nar"><option value="">vsi</option></select></label>
+<label>Postopek<select id="pos"><option value="">vsi</option></select></label>
+<label>Leto<select id="leto"><option value="">vsa</option></select></label>
+<label>Izbrana vrednost od (EUR)<input id="min" type="number" value="0" style="width:100px"></label>
+<label>Ponudb<select id="pon"><option value="">vse</option><option value="1">samo 1 ponudba</option><option value="2">2 ali več</option></select></label>
+<button id="exp">Izvoz v Excel (CSV)</button>
+<button id="tabS" class="on">Sklopi</button><button id="tabD">Dobavitelji</button>
+</div>
+<div class="sum" id="sum"></div>
+<div class="note">Pozor: ena ponudba ali visok delež enega dobavitelja še ne pomeni slabega naročanja (npr. patentirana zdravila, specifična oprema). Izbrana vrednost je vrednost sklopa, pri več dobaviteljih skupna. Podatke je treba preveriti pri naročniku.</div>
+<div class="wrap"><table id="t"></table></div>
+<script>
+const D=__DATA__;
+// 0 id,1 datum,2 naročnik,3 naslov,4 postopek,5 ocenjena,6 izbrana,7 ponudb,8 izvajalci,9 razlog
+const $=i=>document.getElementById(i);let tab="S",sortK=6,sortDir=-1,F=[];
+const uniq=(i)=>[...new Set(D.map(r=>r[i]))].sort();
+uniq(2).forEach(v=>$("nar").add(new Option(v,v)));uniq(4).forEach(v=>$("pos").add(new Option(v,v)));
+[...new Set(D.map(r=>r[1].slice(0,4)))].filter(x=>x).sort().forEach(v=>$("leto").add(new Option(v,v)));
+const eur=n=>n==null?"":n.toLocaleString("sl-SI")+" €";
+const esc=s=>String(s).replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
+function filt(){const q=$("q").value.toLowerCase().trim(),n=$("nar").value,p=$("pos").value,l=$("leto").value,m=+$("min").value||0,o=$("pon").value;
+F=D.filter(r=>(!q||(r[3]+" "+r[2]+" "+r[8].join(" ")).toLowerCase().includes(q))&&(!n||r[2]==n)&&(!p||r[4]==p)&&(!l||r[1].startsWith(l))&&(r[6]||0)>=m&&(!o||(o=="1"?r[7]==1:r[7]>=2)));}
+function render(){filt();const tot=F.reduce((a,r)=>a+(r[6]||0),0),one=F.filter(r=>r[7]==1),oneV=one.reduce((a,r)=>a+(r[6]||0),0);
+$("sum").innerHTML=`<b>${F.length.toLocaleString("sl-SI")}</b> sklopov, skupaj <b>${eur(tot)}</b>; z eno ponudbo: ${one.length} (${F.length?Math.round(100*one.length/F.length):0} % sklopov, ${tot?Math.round(100*oneV/tot):0} % vrednosti)`;
+let h="";
+if(tab=="S"){const cols=[["Datum",1],["Naročnik",2],["Predmet sklopa",3],["Postopek",4],["Ocenjena",5],["Izbrana",6],["Ponudb",7],["Dobavitelji",8]];
+F.sort((a,b)=>{let x=a[sortK],y=b[sortK];if(Array.isArray(x)){x=x.join();y=y.join()}return (x==null?-1:x)>(y==null?-1:y)?sortDir:-sortDir});
+h="<tr>"+cols.map(c=>`<th onclick="srt(${c[1]})">${c[0]}</th>`).join("")+"<th></th></tr>";
+F.slice(0,500).forEach(r=>{h+=`<tr class="${r[7]==1?"r1":""}"><td>${r[1]}</td><td>${esc(r[2])}</td><td>${esc(r[3])}</td><td>${esc(r[4])}${r[9]?`<br><span class="tag">${esc(r[9]).slice(0,80)}</span>`:""}</td><td class="n">${eur(r[5])}</td><td class="n">${eur(r[6])}</td><td class="n">${r[7]??""}</td><td>${esc(r[8].join(", "))}</td><td><a target="_blank" href="https://www.enarocanje.si/#/pregled-objav/${r[0]}">objava</a></td></tr>`});
+if(F.length>500)h+=`<tr><td colspan=9>Prikazanih prvih 500 od ${F.length}. Zožite iskanje ali izvozite vse v CSV.</td></tr>`;}
+else{const m={};F.forEach(r=>{const k=r[8].length?r[8]:["(neznan)"];k.forEach(s=>{const e=m[s]||(m[s]={v:0,n:0,one:0});e.v+=(r[6]||0)/k.length;e.n++;if(r[7]==1)e.one++})});
+const L=Object.entries(m).sort((a,b)=>b[1].v-a[1].v).slice(0,200);
+h="<tr><th>Dobavitelj</th><th>Skupaj (EUR, deljeno med soizvajalce)</th><th>Sklopov</th><th>Od tega z 1 ponudbo</th><th>Delež v izbrani vrednosti</th></tr>";
+L.forEach(([s,e])=>h+=`<tr><td>${esc(s)}</td><td class="n">${eur(Math.round(e.v))}</td><td class="n">${e.n}</td><td class="n">${e.one}</td><td class="n">${tot?(100*e.v/tot).toFixed(1):0} %</td></tr>`);}
+$("t").innerHTML=h}
+function srt(k){sortDir=sortK==k?-sortDir:-1;sortK=k;render()}
+["q","nar","pos","leto","min","pon"].forEach(i=>$(i).addEventListener("input",render));
+$("tabS").onclick=()=>{tab="S";$("tabS").className="on";$("tabD").className="";render()};
+$("tabD").onclick=()=>{tab="D";$("tabD").className="on";$("tabS").className="";render()};
+$("exp").onclick=()=>{filt();const q=s=>'"'+String(s??"").replace(/"/g,'""')+'"';
+const csv="﻿datum;narocnik;predmet;postopek;ocenjena;izbrana;ponudb;dobavitelji;povezava\n"+F.map(r=>[r[1],q(r[2]),q(r[3]),q(r[4]),r[5]??"",r[6]??"",r[7]??"",q(r[8].join(", ")),"https://www.enarocanje.si/#/pregled-objav/"+r[0]].join(";")).join("\n");
+const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv"}));a.download="javna_narocila_zdravstvo.csv";a.click()};
+render();
+</script></body></html>
