@@ -1,6 +1,7 @@
 import pandas as pd, json, re, sys
 d = pd.read_csv("data/obvestila_sklopi.csv", low_memory=False)
 d = d[d.status_oddaje == 2].copy()
+d["postopek"] = d["postopek"].astype(str).replace({"9": "Neznano (šifra 9)"})
 def kratko(s):
     s = re.split(r",|\sd\.o\.o|\sd\.d\.|\sGmbH|\sAG\b", s.strip())[0].strip()
     return s.upper()

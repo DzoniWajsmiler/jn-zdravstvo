@@ -35,7 +35,8 @@ const D=__DATA__;
 // 0 id,1 datum,2 naročnik,3 naslov,4 postopek,5 ocenjena,6 izbrana,7 ponudb,8 izvajalci,9 razlog
 const $=i=>document.getElementById(i);let tab="S",sortK=6,sortDir=-1,F=[];
 const uniq=(i)=>[...new Set(D.map(r=>r[i]))].sort();
-uniq(2).forEach(v=>$("nar").add(new Option(v,v)));uniq(4).forEach(v=>$("pos").add(new Option(v,v)));
+uniq(2).forEach(v=>$("nar").add(new Option(v,v)));const OPIS={"Odprti postopek":"Vsak zainteresiran dobavitelj lahko odda ponudbo. Najbolj konkurenčna pot.","Omejeni postopek":"Ponudbo odda le kandidat, ki ga naročnik povabi po prvi fazi prijav.","Konkurenčni postopek s pogajanji":"Po objavi se naročnik pogaja z izbranimi kandidati. Dovoljen le v določenih primerih.","Oddaja brez predhodne objave":"Brez javnega razpisa, neposredno pri enem ali več dobaviteljih. Dovoljeno izjemoma (npr. en sam možen dobavitelj, nujnost).","Naročilo male vrednosti (po obrazcu SL2)":"Poenostavljen postopek pod zakonskimi pragovi. Oznaka je izpeljana in ni potrjena v uradnem šifrantu.","Drugo":"Ostale ali nerazvrščene vrste postopkov.","Neznano (šifra 9)":"Šifre postopka ni mogoče uvrstiti."};
+uniq(4).forEach(v=>{const o=new Option(v,v);o.title=OPIS[v]||"";$("pos").add(o)});
 [...new Set(D.map(r=>r[1].slice(0,4)))].filter(x=>x).sort().forEach(v=>$("leto").add(new Option(v,v)));
 const eur=n=>n==null?"":n.toLocaleString("sl-SI")+" €";
 const esc=s=>String(s).replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
@@ -47,7 +48,7 @@ let h="";
 if(tab=="S"){const cols=[["Datum",1],["Naročnik",2],["Predmet sklopa",3],["Postopek",4],["Ocenjena",5],["Izbrana",6],["Ponudb",7],["Dobavitelji",8]];
 F.sort((a,b)=>{let x=a[sortK],y=b[sortK];if(Array.isArray(x)){x=x.join();y=y.join()}return (x==null?-1:x)>(y==null?-1:y)?sortDir:-sortDir});
 h="<tr>"+cols.map(c=>`<th onclick="srt(${c[1]})">${c[0]}</th>`).join("")+"<th></th></tr>";
-F.slice(0,500).forEach(r=>{h+=`<tr class="${r[7]==1?"r1":""}"><td>${r[1]}</td><td>${esc(r[2])}</td><td>${esc(r[3])}</td><td>${esc(r[4])}${r[9]?`<br><span class="tag">${esc(r[9]).slice(0,80)}</span>`:""}</td><td class="n">${eur(r[5])}</td><td class="n">${eur(r[6])}</td><td class="n">${r[7]??""}</td><td>${esc(r[8].join(", "))}</td><td><a target="_blank" href="https://www.enarocanje.si/#/pregled-objav/${r[0]}">objava</a></td></tr>`});
+F.slice(0,500).forEach(r=>{h+=`<tr class="${r[7]==1?"r1":""}"><td>${r[1]}</td><td>${esc(r[2])}</td><td>${esc(r[3])}</td><td title="${esc(OPIS[r[4]]||'')}">${esc(r[4])}${r[9]?`<br><span class="tag">${esc(r[9]).slice(0,80)}</span>`:""}</td><td class="n">${eur(r[5])}</td><td class="n">${eur(r[6])}</td><td class="n">${r[7]??""}</td><td>${esc(r[8].join(", "))}</td><td><a target="_blank" href="https://www.enarocanje.si/#/pregled-objav/${r[0]}">objava</a></td></tr>`});
 if(F.length>500)h+=`<tr><td colspan=9>Prikazanih prvih 500 od ${F.length}. Zožite iskanje ali izvozite vse v CSV.</td></tr>`;}
 else{const m={};F.forEach(r=>{const k=r[8].length?r[8]:["(neznan)"];k.forEach(s=>{const e=m[s]||(m[s]={v:0,n:0,one:0});e.v+=(r[6]||0)/k.length;e.n++;if(r[7]==1)e.one++})});
 const L=Object.entries(m).sort((a,b)=>b[1].v-a[1].v).slice(0,200);
