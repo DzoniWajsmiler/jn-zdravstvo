@@ -1,4 +1,4 @@
-# Ročni zagon: Actions > Prenos obvestil z enarocanje.si > Run workflow
+# Rocni zagon: Actions > Prenos obvestil z enarocanje.si > Run workflow
 name: Prenos obvestil z enarocanje.si
 on:
   workflow_dispatch:
@@ -18,11 +18,11 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: { python-version: "3.12" }
-      - run: pip install -r scripts/requirements.txt && playwright install --with-deps chromium
-      - run: python scripts/fetch_notices.py data/skrinja_cpv33_2021_2025.xlsx --shard ${{ matrix.shard }}/4 --limit ${{ inputs.limit }} --out cache
+      - run: pip install requests pandas openpyxl
+      - run: python scripts/fetch_api.py data/skrinja_cpv33_2021_2025.xlsx --shard ${{ matrix.shard }}/4 --limit ${{ inputs.limit }} --out cache_api
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: cache-${{ matrix.shard }}
-          path: cache/
+          name: api-${{ matrix.shard }}
+          path: cache_api/
           if-no-files-found: ignore
