@@ -51,7 +51,10 @@ if not cpv.exists():
     print("cpv.json:", len(r.text), "znakov")
 
 df = pd.read_excel(a.xlsx).dropna(subset=["Povezava do objave"])
-ids = list(dict.fromkeys(re.search(r"/(\d+)\s*$", u).group(1) for u in df["Povezava do objave"]))
+def _id(u):
+    m = re.search(r"(?:/|id_obrazec=)(\d+)\s*$", str(u))
+    return m.group(1) if m else None
+ids = [i for i in dict.fromkeys(_id(u) for u in df["Povezava do objave"]) if i]
 if a.shard:
     k, n = map(int, a.shard.split("/")); ids = ids[k::n]
 if a.limit: ids = ids[:a.limit]
