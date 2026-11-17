@@ -6,6 +6,10 @@ def kratko(s):
     s = re.split(r",|\sd\.o\.o|\sd\.d\.|\sGmbH|\sAG\b", s.strip())[0].strip()
     return s.upper()
 rows = []
+d["_one"] = d.st_ponudb == 1
+g = d.groupby("id_obvestila")._one.agg(["size", "all"])
+vse1 = set(g[(g["size"] >= 3) & g["all"]].index)
+SK = {"zdravstvo": "z", "ministrstvo": "m", "kandidat": "k"}
 for r in d.itertuples():
     izv = [x.strip() for x in str(r.izvajalec).split("|")] if pd.notna(r.izvajalec) else []
     rows.append([int(r.id_obvestila), str(r.datum_pogodbe)[:10] if pd.notna(r.datum_pogodbe) else "",
@@ -13,7 +17,9 @@ for r in d.itertuples():
         None if pd.isna(r.ocenjena_sklop) else round(r.ocenjena_sklop),
         None if pd.isna(r.izbrana) else round(r.izbrana),
         None if pd.isna(r.st_ponudb) else int(r.st_ponudb),
-        sorted({kratko(x) for x in izv}), str(r.razlog_brez_objave) if pd.notna(r.razlog_brez_objave) else ""])
+        sorted({kratko(x) for x in izv}), str(r.razlog_brez_objave) if pd.notna(r.razlog_brez_objave) else "",
+        SK.get(r.skupina, "z"),
+        ("A" if r.id_obvestila in vse1 else "") + ("B" if pd.notna(r.ocenjena_sklop) and pd.notna(r.izbrana) and r.ocenjena_sklop > 0 and r.izbrana >= 10000 and 0.98 <= r.izbrana / r.ocenjena_sklop <= 1.0 else "")])
 import os
 odp = []; osv = ""
 if os.path.exists("data/ejn_state.json"):
