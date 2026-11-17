@@ -23,14 +23,14 @@ th{position:sticky;top:0;background:#eee;cursor:pointer;font-size:12px}td.n{text
 <label>Postopek<select id="pos"><option value="">vsi</option></select></label>
 <label>Leto<select id="leto"><option value="">vsa</option></select></label>
 <label>Izbrana vrednost od (EUR)<input id="min" type="number" value="10000" style="width:100px"></label>
-<label>Majhna naročila<select id="mv"><option value="skrij">skrij (male vrednosti)</option><option value="vsa">prikaži vsa</option></select></label>
+<label>Majhna naročila<select id="mv"><option value="vsa">prikaži vsa</option><option value="skrij">skrij (male vrednosti)</option></select></label>
 <label>Ponudb<select id="pon"><option value="">vse</option><option value="1">samo 1 ponudba</option><option value="2">2 ali več</option></select></label>
 <button id="exp">Izvoz v Excel (CSV)</button>
 <label>Odprta naročila<select id="oz"><option value="z">samo zdravstvo (CPV 33)</option><option value="v">vsa</option></select></label>
 <button id="tabS" class="on">Oddana naročila</button><button id="tabD">Dobavitelji</button><button id="tabO">Odprta naročila (ponudbe)</button>
 </div>
 <div class="sum" id="sum"></div>
-<div class="note">Privzeto so skrita naročila male vrednosti in sklopi pod 10.000 EUR (spremeni zgoraj). Pozor: ena ponudba ali visok delež enega dobavitelja še ne pomeni slabega naročanja (npr. patentirana zdravila, specifična oprema). Izbrana vrednost je vrednost sklopa, pri več dobaviteljih skupna. Podatke je treba preveriti pri naročniku.</div>
+<div class="note">Privzeto so skriti sklopi pod 10.000 EUR (spremeni zgoraj). Naročila male vrednosti so vidna, ker lahko skrivajo drobljenje naročil; skriješ jih v izbiri. Pozor: ena ponudba ali visok delež enega dobavitelja še ne pomeni slabega naročanja (npr. patentirana zdravila, specifična oprema). Izbrana vrednost je vrednost sklopa, pri več dobaviteljih skupna. Podatke je treba preveriti pri naročniku.</div>
 <div class="wrap"><table id="t"></table></div>
 <script>
 const D=__DATA__;
