@@ -14,7 +14,17 @@ for r in d.itertuples():
         None if pd.isna(r.izbrana) else round(r.izbrana),
         None if pd.isna(r.st_ponudb) else int(r.st_ponudb),
         sorted({kratko(x) for x in izv}), str(r.razlog_brez_objave) if pd.notna(r.razlog_brez_objave) else ""])
+import os
+odp = []; osv = ""
+if os.path.exists("data/ejn_state.json"):
+    st = json.load(open("data/ejn_state.json", encoding="utf-8"))
+    for z in st["zapisi"].values():
+        pb = [[x["sklop"], q["ime"], q["brez_ddv"]] for x in z.get("ponudbe", []) for q in x["ponudniki"]]
+        n = sum(x["stevilo"] for x in z.get("ponudbe", [])) if z.get("ponudbe") else None
+        odp.append([z["zadevaId"], z["narocnik"], z["naziv"], z["postopek"], z["stanje"], z["rok"], z["odpiranje"], bool(z.get("zdravstvo")), z.get("pjn_id"), pb, n])
+        osv = max(osv, z.get("posodobljeno", ""))
+odprta = json.dumps(odp, ensure_ascii=False).replace("</", "<\\/")
 data = json.dumps(rows, ensure_ascii=False).replace("</", "<\\/")
-html = open("scripts/iskalnik_template.html", encoding="utf-8").read().replace("__DATA__", data)
+html = open("scripts/iskalnik_template.html", encoding="utf-8").read().replace("__DATA__", data).replace("__ODPRTA__", odprta).replace("OSVEZENO", json.dumps(osv))
 open("docs/iskalnik.html", "w", encoding="utf-8").write(html)
 print(len(rows), "sklopov,", round(len(html)/1e6, 1), "MB")

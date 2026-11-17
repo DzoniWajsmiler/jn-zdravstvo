@@ -1,0 +1,39 @@
+name: Odprta naročila z ejn.gov.si (dnevno)
+on:
+  workflow_dispatch:
+    inputs:
+      lo:
+        description: "Najnižji zadevaId (samo za prvi zagon)"
+        default: "77500"
+  schedule:
+    - cron: "17 3 * * *"
+permissions:
+  contents: write
+concurrency:
+  group: ejn-dnevno
+  cancel-in-progress: false
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: master
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install requests pandas
+      - name: Pregled ejn.gov.si
+        run: python scripts/scan_ejn.py --lo "${{ inputs.lo || '77500' }}"
+      - name: Zgradi iskalnik
+        run: python scripts/build_iskalnik.py
+      - name: Shrani spremembe
+        if: always()
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@users.noreply.github.com"
+          git add data/ejn_state.json docs/iskalnik.html
+          git diff --cached --quiet || git commit -m "Osvežitev odprtih naročil z ejn.gov.si"
+          git pull --rebase origin master
+          git push origin HEAD:master

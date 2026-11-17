@@ -25,13 +25,15 @@ th{position:sticky;top:0;background:#eee;cursor:pointer;font-size:12px}td.n{text
 <label>Izbrana vrednost od (EUR)<input id="min" type="number" value="0" style="width:100px"></label>
 <label>Ponudb<select id="pon"><option value="">vse</option><option value="1">samo 1 ponudba</option><option value="2">2 ali več</option></select></label>
 <button id="exp">Izvoz v Excel (CSV)</button>
-<button id="tabS" class="on">Sklopi</button><button id="tabD">Dobavitelji</button>
+<label>Odprta naročila<select id="oz"><option value="z">samo zdravstvo (CPV 33)</option><option value="v">vsa</option></select></label>
+<button id="tabS" class="on">Oddana naročila</button><button id="tabD">Dobavitelji</button><button id="tabO">Odprta naročila (ponudbe)</button>
 </div>
 <div class="sum" id="sum"></div>
 <div class="note">Pozor: ena ponudba ali visok delež enega dobavitelja še ne pomeni slabega naročanja (npr. patentirana zdravila, specifična oprema). Izbrana vrednost je vrednost sklopa, pri več dobaviteljih skupna. Podatke je treba preveriti pri naročniku.</div>
 <div class="wrap"><table id="t"></table></div>
 <script>
 const D=__DATA__;
+const O=__ODPRTA__; // [zadevaId,naročnik,naziv,postopek,stanje,rok,odpiranje,zdravstvo,pjn_id,ponudbe[[sklop,ime,znesek]],stPonudb]
 const ALI={"URAD REPUBLIKE SLOVENIJE ZA NADZOR, KAKOVOST IN INVESTICIJE V ZDRAVSTVU":"UNKIZ UIZ"};
 // 0 id,1 datum,2 naročnik,3 naslov,4 postopek,5 ocenjena,6 izbrana,7 ponudb,8 izvajalci,9 razlog
 const $=i=>document.getElementById(i);let tab="S",sortK=6,sortDir=-1,F=[];
@@ -43,7 +45,16 @@ const eur=n=>n==null?"":n.toLocaleString("sl-SI")+" €";
 const esc=s=>String(s).replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
 function filt(){const q=$("q").value.toLowerCase().trim(),n=$("nar").value.toLowerCase().trim(),p=$("pos").value,l=$("leto").value,m=+$("min").value||0,o=$("pon").value;
 F=D.filter(r=>(!q||(r[3]+" "+r[2]+" "+(ALI[r[2]]||"")+" "+r[8].join(" ")).toLowerCase().includes(q))&&(!n||(r[2]+" "+(ALI[r[2]]||"")).toLowerCase().includes(n))&&(!p||r[4]==p)&&(!l||r[1].startsWith(l))&&(r[6]||0)>=m&&(!o||(o=="1"?r[7]==1:r[7]>=2)));}
-function render(){filt();const tot=F.reduce((a,r)=>a+(r[6]||0),0),one=F.filter(r=>r[7]==1),oneV=one.reduce((a,r)=>a+(r[6]||0),0);
+function renderO(){const q=$("q").value.toLowerCase().trim(),n=$("nar").value.toLowerCase().trim(),z=$("oz").value=="z";
+const L=O.filter(r=>(!z||r[7])&&(!q||(r[2]+" "+r[1]+" "+r[9].map(x=>x[1]).join(" ")).toLowerCase().includes(q))&&(!n||(r[1]+" "+(ALI[r[1]]||"")).toLowerCase().includes(n))).sort((a,b)=>(b[0]-a[0]));
+const withB=L.filter(r=>r[10]>0).length;
+$("sum").innerHTML=`<b>${L.length}</b> odprtih naročil (zadnja osvežitev: ${OSVEZENO}), s prejetimi ponudbami: ${withB}. Ponudbe so vidne samo v fazi javnega odpiranja, pozneje jih EJN ne kaže več.`;
+let h="<tr><th>Naročnik</th><th>Naziv</th><th>Postopek</th><th>Stanje</th><th>Rok / odpiranje</th><th>Ponudb</th><th>Ponudniki (znesek brez DDV)</th><th></th></tr>";
+L.slice(0,500).forEach(r=>{const pb=r[9].map(x=>(x[0]?x[0].slice(0,20)+": ":"")+esc(x[1].split(",")[0])+" "+(x[2]==null?"":eur(Math.round(x[2])))).join("<br>");
+h+=`<tr class="${r[10]==1?"r1":""}"><td>${esc(r[1])}</td><td>${esc(r[2])}</td><td>${esc(r[3])}</td><td>${esc(r[4])}</td><td>${esc(r[5])}<br>${esc(r[6])}</td><td class="n">${r[10]??""}</td><td>${pb}</td><td><a target="_blank" href="https://ejn.gov.si/ponudba/pages/aktualno/aktualno_jnc_podrobno.xhtml?zadevaId=${r[0]}">EJN</a>${r[8]?` <a target="_blank" href="https://www.enarocanje.si/#/pregled-objav/${r[8]}">PJN</a>`:""}</td></tr>`});
+if(L.length>500)h+=`<tr><td colspan=8>Prikazanih prvih 500 od ${L.length}.</td></tr>`;
+$("t").innerHTML=h;window.__O=L}
+function render(){if(tab=="O"){renderO();return}filt();const tot=F.reduce((a,r)=>a+(r[6]||0),0),one=F.filter(r=>r[7]==1),oneV=one.reduce((a,r)=>a+(r[6]||0),0);
 $("sum").innerHTML=`<b>${F.length.toLocaleString("sl-SI")}</b> sklopov, skupaj <b>${eur(tot)}</b>; z eno ponudbo: ${one.length} (${F.length?Math.round(100*one.length/F.length):0} % sklopov, ${tot?Math.round(100*oneV/tot):0} % vrednosti)`;
 let h="";
 if(tab=="S"){const cols=[["Datum",1],["Naročnik",2],["Predmet sklopa",3],["Postopek",4],["Ocenjena",5],["Izbrana",6],["Ponudb",7],["Dobavitelji",8]];
@@ -58,9 +69,12 @@ L.forEach(([s,e])=>h+=`<tr><td>${esc(s)}</td><td class="n">${eur(Math.round(e.v)
 $("t").innerHTML=h}
 function srt(k){sortDir=sortK==k?-sortDir:-1;sortK=k;render()}
 ["q","nar","pos","leto","min","pon"].forEach(i=>$(i).addEventListener("input",render));
-$("tabS").onclick=()=>{tab="S";$("tabS").className="on";$("tabD").className="";render()};
-$("tabD").onclick=()=>{tab="D";$("tabD").className="on";$("tabS").className="";render()};
-$("exp").onclick=()=>{filt();const q=s=>'"'+String(s??"").replace(/"/g,'""')+'"';
+$("tabS").onclick=()=>{tab="S";$("tabS").className="on";$("tabD").className="";$("tabO").className="";render()};
+$("tabD").onclick=()=>{tab="D";$("tabD").className="on";$("tabS").className="";$("tabO").className="";render()};
+$("tabO").onclick=()=>{tab="O";$("tabO").className="on";$("tabS").className="";$("tabD").className="";render()};
+$("oz").addEventListener("input",render);
+$("exp").onclick=()=>{if(tab=="O"){renderO();const q=s=>'"'+String(s??"").replace(/"/g,'""')+'"';const rows=[];window.__O.forEach(r=>{if(r[9].length)r[9].forEach(x=>rows.push([r[0],q(r[1]),q(r[2]),q(r[3]),q(r[4]),q(r[6]),q(x[0]),q(x[1]),x[2]??""]));else rows.push([r[0],q(r[1]),q(r[2]),q(r[3]),q(r[4]),q(r[6]),"","",""])});
+const csv="\ufeffzadevaId;narocnik;naziv;postopek;stanje;odpiranje;sklop;ponudnik;znesek_brez_ddv\n"+rows.map(x=>x.join(";")).join("\n");const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv"}));a.download="odprta_narocila.csv";a.click();return}filt();const q=s=>'"'+String(s??"").replace(/"/g,'""')+'"';
 const csv="﻿datum;narocnik;predmet;postopek;ocenjena;izbrana;ponudb;dobavitelji;povezava\n"+F.map(r=>[r[1],q(r[2]),q(r[3]),q(r[4]),r[5]??"",r[6]??"",r[7]??"",q(r[8].join(", ")),"https://www.enarocanje.si/#/pregled-objav/"+r[0]].join(";")).join("\n");
 const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv"}));a.download="javna_narocila_zdravstvo.csv";a.click()};
 render();
