@@ -37,3 +37,15 @@ jobs:
           git diff --cached --quiet || git commit -m "Osvežitev odprtih naročil z ejn.gov.si"
           git pull --rebase origin master
           git push origin HEAD:master
+      - name: Pripravi mapo za nalaganje
+        run: mkdir -p deploy && cp docs/iskalnik.html deploy/iskalnik.html
+      - name: Naloži na dobra-praksa.si (FTPS)
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftps
+          port: 21
+          local-dir: ./deploy/
+          server-dir: ./

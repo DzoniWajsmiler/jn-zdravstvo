@@ -1,0 +1,22 @@
+name: Nalaganje iskalnika na dobra-praksa.si (FTPS)
+on:
+  workflow_dispatch:
+  push:
+    branches: [master]
+    paths: ["docs/iskalnik.html"]
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Pripravi mapo samo z iskalnikom
+        run: mkdir deploy && cp docs/iskalnik.html deploy/iskalnik.html
+      - uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftps
+          port: 21
+          local-dir: ./deploy/
+          server-dir: ./
