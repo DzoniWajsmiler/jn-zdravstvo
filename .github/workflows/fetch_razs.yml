@@ -1,0 +1,35 @@
+name: Prenos obvestil (razširitev) z enarocanje.si
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1, 2, 3]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install requests pandas openpyxl
+      - name: Prenos
+        run: python scripts/fetch_api.py --ids data/ids_razsiritev.txt --shard ${{ matrix.shard }}/4 --out cache_api
+      - name: Razčlenitev v CSV
+        if: always()
+        run: python scripts/parse_api.py cache_api out/razs_${{ matrix.shard }}.csv
+      - name: Shrani CSV na vejo
+        if: always()
+        run: |
+          cp cache_api/failed.txt out/failed_${{ matrix.shard }}.txt 2>/dev/null || true
+          git config user.name "github-actions"
+          git config user.email "actions@users.noreply.github.com"
+          git checkout --orphan api-data-${{ matrix.shard }}
+          git rm -rf --cached . > /dev/null 2>&1 || true
+          git add -f out
+          git commit -m "Prenos razširitev ${{ matrix.shard }}" > /dev/null
+          git push -f origin api-data-${{ matrix.shard }}

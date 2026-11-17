@@ -11,7 +11,8 @@ from pathlib import Path
 import pandas as pd, requests
 
 ap = argparse.ArgumentParser()
-ap.add_argument("xlsx")
+ap.add_argument("xlsx", nargs="?")
+ap.add_argument("--ids", default="")
 ap.add_argument("--out", default="cache_api")
 ap.add_argument("--limit", type=int, default=0)
 ap.add_argument("--shard", default="")
@@ -50,11 +51,14 @@ if not cpv.exists():
     cpv.write_text(r.text, encoding="utf-8")
     print("cpv.json:", len(r.text), "znakov")
 
-df = pd.read_excel(a.xlsx).dropna(subset=["Povezava do objave"])
 def _id(u):
     m = re.search(r"(?:/|id_obrazec=)(\d+)\s*$", str(u))
     return m.group(1) if m else None
-ids = [i for i in dict.fromkeys(_id(u) for u in df["Povezava do objave"]) if i]
+if a.ids:
+    ids = [l.strip() for l in open(a.ids) if l.strip()]
+else:
+    df = pd.read_excel(a.xlsx).dropna(subset=["Povezava do objave"])
+    ids = [i for i in dict.fromkeys(_id(u) for u in df["Povezava do objave"]) if i]
 if a.shard:
     k, n = map(int, a.shard.split("/")); ids = ids[k::n]
 if a.limit: ids = ids[:a.limit]

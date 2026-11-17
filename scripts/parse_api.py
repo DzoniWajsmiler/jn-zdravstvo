@@ -46,8 +46,9 @@ for f in sorted(cache.glob("[0-9]*.json")):
             "izbrana": num(od.get("vrednostIzbrana")),
             "izvajalec": " | ".join(subj), "datum_pogodbe": datum_pogodbe,
         })
-Path("data").mkdir(exist_ok=True)
+OUT = Path(sys.argv[2] if len(sys.argv) > 2 else "data/obvestila_sklopi.csv")
+OUT.parent.mkdir(parents=True, exist_ok=True)
 if rows:
-    with open("data/obvestila_sklopi.csv", "w", newline="", encoding="utf-8") as fh:
+    with open(OUT, "w", newline="", encoding="utf-8") as fh:
         w = csv.DictWriter(fh, fieldnames=list(rows[0])); w.writeheader(); w.writerows(rows)
 print(len(rows), "vrstic (sklop/oddaja) iz", len(set(r["id_obvestila"] for r in rows)), "obvestil")
