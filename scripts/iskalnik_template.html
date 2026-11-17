@@ -19,7 +19,7 @@ th{position:sticky;top:0;background:#eee;cursor:pointer;font-size:12px}td.n{text
 <div class="sub">Vir: Portal javnih naročil (enarocanje.si), obvestila o oddaji, CPV 33, pogodbe od sept. 2022 do 2025 (novi format obvestil). Starejša obvestila nimajo podatkov o ponudbah.</div></header>
 <div class="bar">
 <label>Iskanje (predmet, naročnik, dobavitelj)<input id="q" size="30" placeholder="npr. zaklopk, stent, endoprotez"></label>
-<label>Naročnik<select id="nar"><option value="">vsi</option></select></label>
+<label>Naročnik (vpiši del imena)<input id="nar" list="narL" placeholder="npr. UKC, ministrstvo, UIZ" size="28"><datalist id="narL"></datalist></label>
 <label>Postopek<select id="pos"><option value="">vsi</option></select></label>
 <label>Leto<select id="leto"><option value="">vsa</option></select></label>
 <label>Izbrana vrednost od (EUR)<input id="min" type="number" value="0" style="width:100px"></label>
@@ -32,16 +32,17 @@ th{position:sticky;top:0;background:#eee;cursor:pointer;font-size:12px}td.n{text
 <div class="wrap"><table id="t"></table></div>
 <script>
 const D=__DATA__;
+const ALI={"URAD REPUBLIKE SLOVENIJE ZA NADZOR, KAKOVOST IN INVESTICIJE V ZDRAVSTVU":"UNKIZ UIZ"};
 // 0 id,1 datum,2 naročnik,3 naslov,4 postopek,5 ocenjena,6 izbrana,7 ponudb,8 izvajalci,9 razlog
 const $=i=>document.getElementById(i);let tab="S",sortK=6,sortDir=-1,F=[];
 const uniq=(i)=>[...new Set(D.map(r=>r[i]))].sort();
-uniq(2).forEach(v=>$("nar").add(new Option(v,v)));const OPIS={"Odprti postopek":"Vsak zainteresiran dobavitelj lahko odda ponudbo. Najbolj konkurenčna pot.","Omejeni postopek":"Ponudbo odda le kandidat, ki ga naročnik povabi po prvi fazi prijav.","Konkurenčni postopek s pogajanji":"Po objavi se naročnik pogaja z izbranimi kandidati. Dovoljen le v določenih primerih.","Oddaja brez predhodne objave":"Brez javnega razpisa, neposredno pri enem ali več dobaviteljih. Dovoljeno izjemoma (npr. en sam možen dobavitelj, nujnost).","Naročilo male vrednosti (po obrazcu SL2)":"Poenostavljen postopek pod zakonskimi pragovi. Oznaka je izpeljana in ni potrjena v uradnem šifrantu.","Drugo":"Ostale ali nerazvrščene vrste postopkov.","Neznano (šifra 9)":"Šifre postopka ni mogoče uvrstiti."};
+uniq(2).forEach(v=>{const o=document.createElement("option");o.value=v;$("narL").appendChild(o)});const OPIS={"Odprti postopek":"Vsak zainteresiran dobavitelj lahko odda ponudbo. Najbolj konkurenčna pot.","Omejeni postopek":"Ponudbo odda le kandidat, ki ga naročnik povabi po prvi fazi prijav.","Konkurenčni postopek s pogajanji":"Po objavi se naročnik pogaja z izbranimi kandidati. Dovoljen le v določenih primerih.","Oddaja brez predhodne objave":"Brez javnega razpisa, neposredno pri enem ali več dobaviteljih. Dovoljeno izjemoma (npr. en sam možen dobavitelj, nujnost).","Naročilo male vrednosti (po obrazcu SL2)":"Poenostavljen postopek pod zakonskimi pragovi. Oznaka je izpeljana in ni potrjena v uradnem šifrantu.","Drugo":"Ostale ali nerazvrščene vrste postopkov.","Neznano (šifra 9)":"Šifre postopka ni mogoče uvrstiti."};
 uniq(4).forEach(v=>{const o=new Option(v,v);o.title=OPIS[v]||"";$("pos").add(o)});
 [...new Set(D.map(r=>r[1].slice(0,4)))].filter(x=>x).sort().forEach(v=>$("leto").add(new Option(v,v)));
 const eur=n=>n==null?"":n.toLocaleString("sl-SI")+" €";
 const esc=s=>String(s).replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
-function filt(){const q=$("q").value.toLowerCase().trim(),n=$("nar").value,p=$("pos").value,l=$("leto").value,m=+$("min").value||0,o=$("pon").value;
-F=D.filter(r=>(!q||(r[3]+" "+r[2]+" "+r[8].join(" ")).toLowerCase().includes(q))&&(!n||r[2]==n)&&(!p||r[4]==p)&&(!l||r[1].startsWith(l))&&(r[6]||0)>=m&&(!o||(o=="1"?r[7]==1:r[7]>=2)));}
+function filt(){const q=$("q").value.toLowerCase().trim(),n=$("nar").value.toLowerCase().trim(),p=$("pos").value,l=$("leto").value,m=+$("min").value||0,o=$("pon").value;
+F=D.filter(r=>(!q||(r[3]+" "+r[2]+" "+(ALI[r[2]]||"")+" "+r[8].join(" ")).toLowerCase().includes(q))&&(!n||(r[2]+" "+(ALI[r[2]]||"")).toLowerCase().includes(n))&&(!p||r[4]==p)&&(!l||r[1].startsWith(l))&&(r[6]||0)>=m&&(!o||(o=="1"?r[7]==1:r[7]>=2)));}
 function render(){filt();const tot=F.reduce((a,r)=>a+(r[6]||0),0),one=F.filter(r=>r[7]==1),oneV=one.reduce((a,r)=>a+(r[6]||0),0);
 $("sum").innerHTML=`<b>${F.length.toLocaleString("sl-SI")}</b> sklopov, skupaj <b>${eur(tot)}</b>; z eno ponudbo: ${one.length} (${F.length?Math.round(100*one.length/F.length):0} % sklopov, ${tot?Math.round(100*oneV/tot):0} % vrednosti)`;
 let h="";
