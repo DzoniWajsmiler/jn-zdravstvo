@@ -1,0 +1,14 @@
+name: Diagnostika certifikata FTPS
+on: workflow_dispatch
+jobs:
+  cert:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Certifikat strežnika (brez prijave)
+        env:
+          FTP_SERVER: ${{ secrets.FTP_SERVER }}
+        run: |
+          echo | openssl s_client -connect "$FTP_SERVER:6021" -starttls ftp -servername "$FTP_SERVER" -showcerts > cert.txt 2>&1 || true
+          grep -E "Verification|verify error|verify return|depth=|s:|i:|Protocol|Cipher" cert.txt | head -30
+          openssl x509 -in cert.txt -noout -subject -issuer -dates -ext subjectAltName 2>&1 | head -10
+          echo "pin: sha256//$(openssl x509 -in cert.txt -pubkey -noout | openssl pkey -pubin -outform der | openssl dgst -sha256 -binary | base64)"
